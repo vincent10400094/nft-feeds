@@ -2,6 +2,8 @@
 
 Show the latest NFT transactions on Ethereum.
 
+![](https://user-images.githubusercontent.com/17119193/160287995-4c05d1ef-0111-49ca-9b16-70d44c03a684.png)
+
 ## Usage
 
 🚧 Under construction 🚧
@@ -10,7 +12,7 @@ Show the latest NFT transactions on Ethereum.
 
 - [x] Can fetch ERC721 transactions from the newest block
 - [x] Server to constantly fetch and update most recent 100 NFT transctions
-- [ ] Web frontend to render the results 
+- [x] Web frontend to render the results 
 
 ## Reference
 
