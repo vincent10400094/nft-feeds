@@ -2,25 +2,29 @@ import os
 import requests
 
 from dotenv import load_dotenv
+from tqdm import tqdm
 from web3 import Web3
 from web3.providers.rpc import HTTPProvider
 from web3._utils.filters import construct_event_filter_params
 from web3._utils.events import get_event_data
 
 from abi import ERC721_ABI
-
+from db import Database
 
 class Scanner:
-    def __init__(self, rpc_url):
+    def __init__(self, rpc_url: str, db: Database) -> None:
         provider = HTTPProvider(rpc_url)
         self.web3 = Web3(provider)
         self.ERC721 = self.web3.eth.contract(abi=ERC721_ABI)
+        self.db = db
 
         self.transfer_event = self.ERC721.events.Transfer
         self.event_abi = self.transfer_event._get_event_abi()
         self.codec = self.web3.codec
 
-    def _is_erc721_log(self, log):
+        self.previous_block_num = self.web3.eth.block_number - 1
+
+    def _is_erc721_log(self, log: dict) -> bool:
         """
             Note: for ERC721 tokens, there should be 1 signature + 3 indexed arguments
                 = 4 topics
@@ -47,25 +51,33 @@ class Scanner:
         if token_uri.startswith('ipfs://'):
             token_uri = token_uri.replace('ipfs://', 'https://ipfs.io/ipfs/')
         response = requests.get(token_uri)
-        print(f'[{response.status_code}] GET {token_uri}')
+        # print(f'[{response.status_code}] GET {token_uri}')
         nft_metadata = response.json()
         return nft_metadata
 
     def scan(self, limit: int = 50):
+        
+        latest_block_num = self.web3.eth.block_number
+        if latest_block_num <= self.previous_block_num:
+            return
+
         _, event_filter_params = construct_event_filter_params(
             self.event_abi,
             self.codec,
-            fromBlock='latest',
+            fromBlock=self.previous_block_num + 1,
+            toBlock=latest_block_num
         )
+        self.previous_block_num = latest_block_num
 
         logs = self.web3.eth.get_logs(event_filter_params)
-        print(f'Got {len(logs)} NFT transfer events')
-        logs = logs[:limit]
-        results = []
+        result_cnt = 0
+        print(f'Got {len(logs)} token transfer events')
 
-        for log in logs:
+        for log in tqdm(logs):
             if not self._is_erc721_log(log):
                 continue
+            if result_cnt >= limit:
+                break
             try:
                 event = get_event_data(self.codec, self.event_abi, log)
                 event_metadata = self._get_event_metadata(event)
@@ -82,13 +94,12 @@ class Scanner:
                 if 'image' in nft_metadata:
                     event_metadata['nft_metadata'] = self._fetch_nft_metadata(
                         event_metadata['token_uri'])
-                    # print(event_metadata)
-                    results.append(event_metadata)
+                    self.db.insert(event_metadata)
+                    result_cnt += 1
             except Exception as err:
-                print(err)
+                # print(err)
                 continue
-
-        return results
+        print(f'Got {result_cnt} NFT transfer events')
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ Show the latest NFT transactions on Ethereum.
 ## TODOs
 
 - [x] Can fetch ERC721 transactions from the newest block
-- [ ] Server to constantly fetch and update most recent 100 NFT transctions
+- [x] Server to constantly fetch and update most recent 100 NFT transctions
 - [ ] Web frontend to render the results 
 
 ## Reference
