@@ -38,6 +38,7 @@ class Scanner:
         metadata['receiver'] = args['to']
         metadata['token_id'] = args['tokenId']
         metadata['contract_address'] = event['address']
+        metadata['tx_hash'] = event['transactionHash'].hex()
         return metadata
 
     def _get_nft_metadata(self, nft_contract, token_id):
@@ -92,8 +93,8 @@ class Scanner:
                 nft_metadata = self._fetch_nft_metadata(
                     event_metadata['token_uri'])
                 if 'image' in nft_metadata:
-                    event_metadata['nft_metadata'] = self._fetch_nft_metadata(
-                        event_metadata['token_uri'])
+                    nft_metadata['image'] = nft_metadata['image'].replace('ipfs://', 'https://ipfs.io/ipfs/')
+                    event_metadata['nft_metadata'] = nft_metadata
                     self.db.insert(event_metadata)
                     result_cnt += 1
             except Exception as err:

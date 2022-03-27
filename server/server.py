@@ -4,6 +4,7 @@ import signal
 import sys
 
 from flask import Flask, jsonify
+from flask_cors import CORS
 from dotenv import load_dotenv
 
 from scanner import Scanner
@@ -12,6 +13,8 @@ from db import Database
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)
+
 db = Database(capacity=int(
     os.environ['DB_CAPACITY']), db_path=os.environ['DB_PATH'])
 scanner = Scanner(os.environ['ETH_RPC_URL'], db)
@@ -19,7 +22,6 @@ scanner = Scanner(os.environ['ETH_RPC_URL'], db)
 
 def sigint_handler(sig, frame):
     print('Saving database and stop gracefully...')
-    scan_worker.stop()
     db.save()
     sys.exit(0)
 
@@ -43,7 +45,7 @@ def hello():
 
 @app.route('/api/nfts', methods=['GET'])
 def get_feeds():
-    return jsonify(db.query_all())
+    return jsonify(db.query_all()[::-1])
 
 
 if __name__ == '__main__':
