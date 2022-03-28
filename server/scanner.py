@@ -65,8 +65,7 @@ class Scanner:
         _, event_filter_params = construct_event_filter_params(
             self.event_abi,
             self.codec,
-            fromBlock=self.previous_block_num + 1,
-            toBlock=latest_block_num
+            fromBlock='latest'
         )
         self.previous_block_num = latest_block_num
 
