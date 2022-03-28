@@ -6,7 +6,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Refresher</title>
+    <title>NFT feeds</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
     <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
@@ -20,14 +20,9 @@
       ion-item {
         --padding-start: 8px;
       }
-
-      .center {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-      }
       
       ion-card {
+          margin-left: 20%;
           width: 60%;
       }
 
@@ -62,6 +57,9 @@
     </ion-app>
 
     <script>
+      const BASE_URL = 'http://127.0.0.1:8080';
+      const API_ENDPOINT = `${BASE_URL}/api/nfts`;
+
       const refresher = document.getElementById('refresher');
       const listElement = document.querySelector('ion-list');
 
@@ -82,7 +80,7 @@
       });
 
       async function renderNFT() {
-        const res = await fetch('http://127.0.0.1:8080/api/nfts');
+        const res = await fetch(API_ENDPOINT);
         const nftList = await res.json();
         console.log(nftList);
         listElement.innerHTML = '';
@@ -94,33 +92,31 @@
       function createNFTCard(nft) {
         let item = document.createElement('ion-item');
         item.innerHTML = `
-        <div class="center">
-            <ion-card>
-                <ion-grid>
-                <ion-row>
-                    <ion-col>
-                        <img src="${nft.nft_metadata.image}" loading="lazy"/>
-                    </ion-col>
-                    <ion-col>
-                        <ion-card-header>
-                            <ion-card-subtitle>${nft.nft_name}</ion-card-subtitle>
-                            <ion-card-title><a href="https://opensea.io/assets/${nft.contract_address}/${nft.token_id}" target="_blank">${nft.token_id}</a></ion-card-title>
-                        </ion-card-header>
-                        <ion-card-content>
-                            ${nft.nft_metadata.description}
-                        </ion-card-content>
-                        <ion-card-content>
-                            From: <a href="https://etherscan.io/address/${nft.sender}" target="_blank">${nft.sender}</a> <br>
-                            To: <a href="https://etherscan.io/address/${nft.receiver}" target="_blank">${nft.receiver}</a>
-                        </ion-card-content>
-                        <ion-card-content>
-                            Tx hash: <a href="https://etherscan.io/tx/${nft.tx_hash}" target="_blank">${nft.tx_hash}</a>
-                        </ion-card-content>
-                    </ion-col>
-                </ion-row>
-                </ion-grid>
-            </ion-card>
-        <div>
+          <ion-card>
+              <ion-grid>
+              <ion-row>
+                  <ion-col>
+                      <img src="${nft.nft_metadata.image}" loading="lazy"/>
+                  </ion-col>
+                  <ion-col>
+                      <ion-card-header>
+                          <ion-card-subtitle>${nft.nft_name}</ion-card-subtitle>
+                          <ion-card-title><a href="https://opensea.io/assets/${nft.contract_address}/${nft.token_id}" target="_blank">${nft.token_id}</a></ion-card-title>
+                      </ion-card-header>
+                      <ion-card-content>
+                          ${nft.nft_metadata.description}
+                      </ion-card-content>
+                      <ion-card-content>
+                          From: <a href="https://etherscan.io/address/${nft.sender}" target="_blank">${nft.sender}</a> <br>
+                          To: <a href="https://etherscan.io/address/${nft.receiver}" target="_blank">${nft.receiver}</a>
+                      </ion-card-content>
+                      <ion-card-content>
+                          Tx hash: <a href="https://etherscan.io/tx/${nft.tx_hash}" target="_blank">${nft.tx_hash}</a>
+                      </ion-card-content>
+                  </ion-col>
+              </ion-row>
+              </ion-grid>
+          </ion-card>
       `;
         return item;
       }
