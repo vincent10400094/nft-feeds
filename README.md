@@ -7,7 +7,7 @@ Show the latest NFT transactions on Ethereum.
 ## Usage
 
 - [Server](/server/README.md)
-- [Frontend](/server/README.md)
+- [Frontend](/frontend/README.md)
 
 ## TODOs
 
